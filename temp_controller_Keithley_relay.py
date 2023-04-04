@@ -109,11 +109,11 @@ class MainWindow(QMainWindow):
         self.cb_keithley_port.setCurrentIndex(-1)
         self.label_keithley_port.setAlignment(QtCore.Qt.AlignHCenter)
 
-        # self.label_mcu_port = QLabel("MCU COM Port")
-        # self.cb_mcu_port = QComboBox()
-        # self.cb_mcu_port.addItems(self.ports)
-        # self.cb_mcu_port.setCurrentIndex(-1)
-        # self.label_mcu_port.setAlignment(QtCore.Qt.AlignHCenter)
+        self.label_mcu_port = QLabel("MCU COM Port")
+        self.cb_mcu_port = QComboBox()
+        self.cb_mcu_port.addItems(self.ports)
+        self.cb_mcu_port.setCurrentIndex(-1)
+        self.label_mcu_port.setAlignment(QtCore.Qt.AlignHCenter)
 
         self.label_acquisition_time = QLabel("Acquisition Time")
         self.label_acquisition_time.setAlignment(QtCore.Qt.AlignHCenter)
@@ -124,6 +124,16 @@ class MainWindow(QMainWindow):
         self.acquisition_time.setSingleStep(1)
         self.acquisition_time.setDecimals(0)
         self.acquisition_time.setSuffix(" s")
+
+        self.label_delay_time = QLabel("Delay Time")
+        self.label_delay_time.setAlignment(QtCore.Qt.AlignHCenter)
+        self.delay_time = QDoubleSpinBox()
+        self.delay_time.setMinimum(0)
+        self.delay_time.setMaximum(np.inf)
+        self.delay_time.setValue(200)
+        self.delay_time.setSingleStep(1)
+        self.delay_time.setDecimals(0)
+        self.delay_time.setSuffix(" ms")
 
         self.label_box_min = QLabel("ROI Lower Bound")
         self.label_box_min.setAlignment(QtCore.Qt.AlignHCenter)
@@ -262,6 +272,86 @@ class MainWindow(QMainWindow):
         self.label_rolling_max_indicator1.setAlignment(QtCore.Qt.AlignHCenter)
         self.rolling_max_indicator1.setAlignment(QtCore.Qt.AlignHCenter)
 
+        self.label_mean_indicator2 = QLabel("Mean2")
+        self.mean_indicator2 = QDoubleSpinBox()
+        self.mean_indicator2.setReadOnly(True)
+        self.mean_indicator2.setButtonSymbols(2)
+        self.mean_indicator2.setSuffix(" C")
+        self.mean_indicator2.setRange(int(-1e10), int(1e10))
+        self.mean_indicator2.setDecimals(10)
+        self.label_mean_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+        self.mean_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+
+        self.label_error_indicator2 = QLabel("Std. Dev.2")
+        self.error_indicator2 = QDoubleSpinBox()
+        self.error_indicator2.setReadOnly(True)
+        self.error_indicator2.setButtonSymbols(2)
+        self.error_indicator2.setSuffix(" C")
+        self.error_indicator2.setRange(int(-1e10), int(1e10))
+        self.error_indicator2.setDecimals(10)
+        self.label_error_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+        self.error_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+
+        self.label_min_indicator2 = QLabel("Min2")
+        self.min_indicator2 = QDoubleSpinBox()
+        self.min_indicator2.setReadOnly(True)
+        self.min_indicator2.setButtonSymbols(2)
+        self.min_indicator2.setSuffix(" C")
+        self.min_indicator2.setRange(int(-1e10), int(1e10))
+        self.min_indicator2.setDecimals(10)
+        self.label_min_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+        self.min_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+
+        self.label_max_indicator2 = QLabel("Max2")
+        self.max_indicator2 = QDoubleSpinBox()
+        self.max_indicator2.setReadOnly(True)
+        self.max_indicator2.setButtonSymbols(2)
+        self.max_indicator2.setSuffix(" C")
+        self.max_indicator2.setRange(int(-1e10), int(1e10))
+        self.max_indicator2.setDecimals(10)
+        self.label_max_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+        self.max_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+
+        self.label_rolling_mean_indicator2 = QLabel("Rolling Mean2")
+        self.rolling_mean_indicator2 = QDoubleSpinBox()
+        self.rolling_mean_indicator2.setReadOnly(True)
+        self.rolling_mean_indicator2.setButtonSymbols(2)
+        self.rolling_mean_indicator2.setSuffix(" C")
+        self.rolling_mean_indicator2.setRange(int(-1e10), int(1e10))
+        self.rolling_mean_indicator2.setDecimals(10)
+        self.label_rolling_mean_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+        self.rolling_mean_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+
+        self.label_rolling_error_indicator2 = QLabel("Rolling Std. Dev.2")
+        self.rolling_error_indicator2 = QDoubleSpinBox()
+        self.rolling_error_indicator2.setReadOnly(True)
+        self.rolling_error_indicator2.setButtonSymbols(2)
+        self.rolling_error_indicator2.setSuffix(" C")
+        self.rolling_error_indicator2.setRange(int(-1e10), int(1e10))
+        self.rolling_error_indicator2.setDecimals(10)
+        self.label_rolling_error_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+        self.rolling_error_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+
+        self.label_rolling_min_indicator2 = QLabel("Rolling Min2")
+        self.rolling_min_indicator2 = QDoubleSpinBox()
+        self.rolling_min_indicator2.setReadOnly(True)
+        self.rolling_min_indicator2.setButtonSymbols(2)
+        self.rolling_min_indicator2.setSuffix(" C")
+        self.rolling_min_indicator2.setRange(int(-1e10), int(1e10))
+        self.rolling_min_indicator2.setDecimals(10)
+        self.label_rolling_min_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+        self.rolling_min_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+
+        self.label_rolling_max_indicator2 = QLabel("Rolling Max2")
+        self.rolling_max_indicator2 = QDoubleSpinBox()
+        self.rolling_max_indicator2.setReadOnly(True)
+        self.rolling_max_indicator2.setButtonSymbols(2)
+        self.rolling_max_indicator2.setSuffix(" C")
+        self.rolling_max_indicator2.setRange(int(-1e10), int(1e10))
+        self.rolling_max_indicator2.setDecimals(10)
+        self.label_rolling_max_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+        self.rolling_max_indicator2.setAlignment(QtCore.Qt.AlignHCenter)
+
         self.plot_widget = pg.GraphicsLayoutWidget()
 
         self.plot_widget.setBackground("w")
@@ -309,6 +399,10 @@ class MainWindow(QMainWindow):
         self.experiment_layout11 = QHBoxLayout()
         self.experiment_layout12 = QHBoxLayout()
         self.experiment_layout13 = QHBoxLayout()
+        self.experiment_layout14 = QHBoxLayout()
+        self.experiment_layout15 = QHBoxLayout()
+        self.experiment_layout16 = QHBoxLayout()
+        self.experiment_layout17 = QHBoxLayout()
         self.plot_layout = QHBoxLayout()
 
         # nesting layouts
@@ -325,6 +419,10 @@ class MainWindow(QMainWindow):
         self.experiment_layout.addLayout(self.experiment_layout11)
         self.experiment_layout.addLayout(self.experiment_layout12)
         self.experiment_layout.addLayout(self.experiment_layout13)
+        self.experiment_layout.addLayout(self.experiment_layout14)
+        self.experiment_layout.addLayout(self.experiment_layout15)
+        self.experiment_layout.addLayout(self.experiment_layout16)
+        self.experiment_layout.addLayout(self.experiment_layout17)
 
         self.layout.addLayout(self.experiment_layout, 0, 3)
         self.layout.addLayout(self.plot_layout, 1, 0, 1, 6)
@@ -340,8 +438,8 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.widget)
 
         # Experiment Block
-        # self.experiment_layout1.addWidget(self.label_mcu_port)
-        # self.experiment_layout2.addWidget(self.cb_mcu_port)
+        self.experiment_layout1.addWidget(self.label_mcu_port)
+        self.experiment_layout2.addWidget(self.cb_mcu_port)
         self.experiment_layout1.addWidget(self.label_keithley_port)
         self.experiment_layout2.addWidget(self.cb_keithley_port)
         self.experiment_layout1.addWidget(self.label_mode)
@@ -354,6 +452,8 @@ class MainWindow(QMainWindow):
         self.experiment_layout2.addWidget(self.indicator_c3)
         self.experiment_layout5.addWidget(self.label_checkbox_continuous_acquisition)
         self.experiment_layout6.addWidget(self.checkbox_continuous_acquisition)
+        self.experiment_layout5.addWidget(self.label_delay_time)
+        self.experiment_layout6.addWidget(self.delay_time)
         self.experiment_layout5.addWidget(self.label_acquisition_time)
         self.experiment_layout6.addWidget(self.acquisition_time)
         self.experiment_layout7.addWidget(self.btn_start)
@@ -361,20 +461,20 @@ class MainWindow(QMainWindow):
         self.experiment_layout7.addWidget(self.btn_save_data)
         self.experiment_layout7.addWidget(self.btn_load_data)
         self.experiment_layout7.addWidget(self.btn_clear_plot)
-        self.experiment_layout8.addWidget(self.label_mean_indicator1)
-        self.experiment_layout8.addWidget(self.label_error_indicator1)
-        self.experiment_layout8.addWidget(self.label_min_indicator1)
-        self.experiment_layout8.addWidget(self.label_max_indicator1)
-        self.experiment_layout9.addWidget(self.mean_indicator1)
-        self.experiment_layout9.addWidget(self.error_indicator1)
-        self.experiment_layout9.addWidget(self.min_indicator1)
-        self.experiment_layout9.addWidget(self.max_indicator1)
-        self.experiment_layout10.addWidget(self.label_rolling_average_indicator)
-        self.experiment_layout11.addWidget(self.rolling_average_indicator)
-        self.experiment_layout10.addWidget(self.label_box_min)
-        self.experiment_layout11.addWidget(self.box_min)
-        self.experiment_layout10.addWidget(self.label_box_max)
-        self.experiment_layout11.addWidget(self.box_max)
+        self.experiment_layout8.addWidget(self.label_rolling_average_indicator)
+        self.experiment_layout9.addWidget(self.rolling_average_indicator)
+        self.experiment_layout8.addWidget(self.label_box_min)
+        self.experiment_layout9.addWidget(self.box_min)
+        self.experiment_layout8.addWidget(self.label_box_max)
+        self.experiment_layout9.addWidget(self.box_max)
+        self.experiment_layout10.addWidget(self.label_mean_indicator1)
+        self.experiment_layout10.addWidget(self.label_error_indicator1)
+        self.experiment_layout10.addWidget(self.label_min_indicator1)
+        self.experiment_layout10.addWidget(self.label_max_indicator1)
+        self.experiment_layout11.addWidget(self.mean_indicator1)
+        self.experiment_layout11.addWidget(self.error_indicator1)
+        self.experiment_layout11.addWidget(self.min_indicator1)
+        self.experiment_layout11.addWidget(self.max_indicator1)
         self.experiment_layout12.addWidget(self.label_rolling_mean_indicator1)
         self.experiment_layout12.addWidget(self.label_rolling_error_indicator1)
         self.experiment_layout12.addWidget(self.label_rolling_min_indicator1)
@@ -383,6 +483,22 @@ class MainWindow(QMainWindow):
         self.experiment_layout13.addWidget(self.rolling_error_indicator1)
         self.experiment_layout13.addWidget(self.rolling_min_indicator1)
         self.experiment_layout13.addWidget(self.rolling_max_indicator1)
+        self.experiment_layout14.addWidget(self.label_mean_indicator2)
+        self.experiment_layout14.addWidget(self.label_error_indicator2)
+        self.experiment_layout14.addWidget(self.label_min_indicator2)
+        self.experiment_layout14.addWidget(self.label_max_indicator2)
+        self.experiment_layout15.addWidget(self.mean_indicator2)
+        self.experiment_layout15.addWidget(self.error_indicator2)
+        self.experiment_layout15.addWidget(self.min_indicator2)
+        self.experiment_layout15.addWidget(self.max_indicator2)
+        self.experiment_layout16.addWidget(self.label_rolling_mean_indicator2)
+        self.experiment_layout16.addWidget(self.label_rolling_error_indicator2)
+        self.experiment_layout16.addWidget(self.label_rolling_min_indicator2)
+        self.experiment_layout16.addWidget(self.label_rolling_max_indicator2)
+        self.experiment_layout17.addWidget(self.rolling_mean_indicator2)
+        self.experiment_layout17.addWidget(self.rolling_error_indicator2)
+        self.experiment_layout17.addWidget(self.rolling_min_indicator2)
+        self.experiment_layout17.addWidget(self.rolling_max_indicator2)
         self.experiment_layout.addStretch(0)
 
         # Graph Block
@@ -396,7 +512,7 @@ class MainWindow(QMainWindow):
         self.btn_load_data.clicked.connect(self.openFileNameDialog)
         self.btn_clear_plot.clicked.connect(self.clear_plots)
         self.cb_keithley_port.currentIndexChanged.connect(self.init_controller)
-        # self.cb_mcu_port.currentIndexChanged.connect(self.init_mcu)
+        self.cb_mcu_port.currentIndexChanged.connect(self.init_mcu)
         self.region_xy.sigRegionChanged.connect(self.update_UI)
         self.box_min.valueChanged.connect(self.update_box)
         self.box_max.valueChanged.connect(self.update_box)
@@ -462,6 +578,12 @@ class MainWindow(QMainWindow):
                 read += self.inst.read(queue)
         return read
 
+    def mcu_relay_high(self):
+        self.inst_mcu.write(b"R1\n")
+
+    def mcu_relay_low(self):
+        self.inst_mcu.write(b"R2\n")
+
     def calculate_temp(self, R):
         # T1 = (
         #     1
@@ -514,12 +636,39 @@ class MainWindow(QMainWindow):
             self.button_pressed = self.sender().text()
         except:
             pass
+
+        self.timer = QTimer(self)
+        self.timer.setSingleShot(True)
+        self.timer.timeout.connect(self.start2)
+
+        self.timer2 = QTimer(self)
+        self.timer2.setSingleShot(True)
+        self.timer2.timeout.connect(self.start5)
+
+        self.timer3 = QTimer(self)
+        self.timer3.setSingleShot(True)
+        self.timer3.timeout.connect(self.start4)
+
+        self.timer4 = QTimer(self)
+        self.timer4.setSingleShot(True)
+        self.timer4.timeout.connect(self.start7)
+
         Worker.index = -1
-        self.mode = ["Time (s)", "Temp (C)", "Epoch Time"]
+        self.mode = [
+            "time1_(s)",
+            "temp1_(C)",
+            "epoch_time1",
+            "time2_(s)",
+            "temp2_(C)",
+            "epoch_time2",
+        ]
         self.arrays = self.manage_arrays(self.mode)
         self.col0 = self.arrays.columns[0]
         self.col1 = self.arrays.columns[1]
         self.col2 = self.arrays.columns[2]
+        self.col3 = self.arrays.columns[3]
+        self.col4 = self.arrays.columns[4]
+        self.col5 = self.arrays.columns[5]
         self.clear_plots()
         self.create_plot_references()
         self.initial_time = self.epoch_time_s()
@@ -531,19 +680,54 @@ class MainWindow(QMainWindow):
         Worker.index += 1
         self.arrays = self.manage_arrays(self.mode, self.arrays)
 
+        worker = Worker(self.mcu_relay_high)
+        self.threadpool.tryStart(worker)
+        # worker.signals.finished.connect(self.start2)
+
+        print("start1")
+        self.timer.start(int(self.delay_time.value()))
+
+    def start2(self):
+        print("start2")
         worker = Worker(self.query_keithley)
-        worker.signals.result.connect(self.start2)
+        worker.signals.result.connect(self.start3)
         self.threadpool.tryStart(worker)
 
-    def start2(self, fn_name, result):
+    def start3(self, fn_name, result):
         Resistance = float(result.decode()) / 1000
         Temp = self.calculate_temp(Resistance)
         self.arrays.loc[Worker.index, self.col0] = self.time_elapsed(self.initial_time)
         self.arrays.loc[Worker.index, self.col1] = Temp
         self.arrays.loc[Worker.index, self.col2] = perf_counter_ns()
+        print("resistance1: ", Resistance)
+        self.timer3.start(int(self.delay_time.value() / 2))
+        # self.start4()
 
+    def start4(self):
+        print("start 4")
+        worker = Worker(self.mcu_relay_low)
+        self.threadpool.tryStart(worker)
+
+        self.timer2.start(int(self.delay_time.value()))
+
+    def start5(self):
+        worker = Worker(self.query_keithley)
+        worker.signals.result.connect(self.start6)
+        self.threadpool.tryStart(worker)
+
+    def start6(self, fn_name, result):
+        Resistance = float(result.decode()) / 1000
+        Temp = self.calculate_temp(Resistance) + 0.13859
+        self.arrays.loc[Worker.index, self.col3] = self.time_elapsed(self.initial_time)
+        self.arrays.loc[Worker.index, self.col4] = Temp
+        self.arrays.loc[Worker.index, self.col5] = perf_counter_ns()
+        print("resistance2: ", Resistance)
+        self.timer4.start(int(self.delay_time.value() / 2))
+        # self.start7()
+
+    def start7(self):
         # Condition so that len(array) > 2; avoid slicing errors
-        if (Worker.index > 0) and (Worker.index % 10 == 0):
+        if Worker.index > 0:
             self.rolling_average(self.arrays)
             self.plot(self.arrays)
             self.update_UI()
@@ -570,7 +754,7 @@ class MainWindow(QMainWindow):
                 print("Acquisition Stopped")
 
     def rolling_average(self, df):
-        filt = ~(df[self.col0].isnull()) & ~(df[self.col1].isnull())
+        filt = ~(df[self.col0].isnull())
         self.df_rolling_average = (
             df.loc[filt]
             .rolling(self.rolling_average_indicator.value(), center=True)
@@ -584,6 +768,9 @@ class MainWindow(QMainWindow):
         xdata = arrays.loc[: Worker.index, self.col0].to_numpy()
         ydata = arrays.loc[: Worker.index, self.col1].to_numpy()
         self.line_ref_xy.setData(xdata, ydata)
+        xdata2 = arrays.loc[: Worker.index, self.col3].to_numpy()
+        ydata2 = arrays.loc[: Worker.index, self.col4].to_numpy()
+        self.line_ref_xy2.setData(xdata2, ydata2)
         # self.region_xy.setBounds((xdata.min(), xdata.max()))
 
         # Rolling Average
@@ -593,6 +780,10 @@ class MainWindow(QMainWindow):
                 self.df_rolling_average.loc[:, self.col0].to_numpy(),
                 self.df_rolling_average.loc[:, self.col1].to_numpy(),
             )
+            self.line_ref_xy_rolling2.setData(
+                self.df_rolling_average.loc[:, self.col3].to_numpy(),
+                self.df_rolling_average.loc[:, self.col4].to_numpy(),
+            )
         except:
             pass
 
@@ -600,20 +791,31 @@ class MainWindow(QMainWindow):
         self.plot_xy.addItem(self.region_xy, ignoreBounds=True)
         self.line_ref_xy = self.plot_xy.plot(pen="k")
         self.line_ref_xy_roi = self.plot_xy_roi.plot(pen="k")
+        self.line_ref_xy2 = self.plot_xy.plot(pen="g")
+        self.line_ref_xy_roi2 = self.plot_xy_roi.plot(pen="g")
 
         self.line_ref_xy_rolling = self.plot_xy.plot(pen="r")
         self.line_ref_xy_roi_rolling = self.plot_xy_roi.plot(pen="r")
+        self.line_ref_xy_rolling2 = self.plot_xy.plot(pen="b")
+        self.line_ref_xy_roi_rolling2 = self.plot_xy_roi.plot(pen="b")
 
     def update_UI(self):
         # Get lower and upper bound of region
         self.lb, self.ub = self.region_xy.getRegion()
         self.dx = self.ub - self.lb
-        filt = (self.arrays.loc[:, self.col0] >= self.lb) & (
-            self.arrays.loc[:, self.col0] <= self.ub
+        filt = (
+            (self.arrays.loc[:, self.col0] >= self.lb)
+            # & (self.arrays.loc[:, self.col3] >= self.lb)
+            & (self.arrays.loc[:, self.col0] <= self.ub)
+            # & (self.arrays.loc[:, self.col3] <= self.ub)
         )
         self.line_ref_xy_roi.setData(
             self.arrays.loc[filt, self.col0].to_numpy(),
             self.arrays.loc[filt, self.col1].to_numpy(),
+        )
+        self.line_ref_xy_roi2.setData(
+            self.arrays.loc[filt, self.col3].to_numpy(),
+            self.arrays.loc[filt, self.col4].to_numpy(),
         )
 
         # if Worker.index > self.rolling_average_indicator.value():
@@ -626,16 +828,30 @@ class MainWindow(QMainWindow):
         self.min1 = self.arrays.loc[filt, self.col1].min()
         self.max1 = self.arrays.loc[filt, self.col1].max()
 
+        self.mean2 = self.arrays.loc[filt, self.col4].mean()
+        self.std_dev2 = self.arrays.loc[filt, self.col4].std()
+        self.min2 = self.arrays.loc[filt, self.col4].min()
+        self.max2 = self.arrays.loc[filt, self.col4].max()
+
         # Update Indicators
         self.mean_indicator1.setValue(self.mean1)
         self.error_indicator1.setValue(self.std_dev1)
         self.min_indicator1.setValue(self.min1)
         self.max_indicator1.setValue(self.max1)
 
+        self.mean_indicator2.setValue(self.mean2)
+        self.error_indicator2.setValue(self.std_dev2)
+        self.min_indicator2.setValue(self.min2)
+        self.max_indicator2.setValue(self.max2)
+
         try:
             self.line_ref_xy_roi_rolling.setData(
                 self.df_rolling_average.loc[filt, self.col0].to_numpy(),
                 self.df_rolling_average.loc[filt, self.col1].to_numpy(),
+            )
+            self.line_ref_xy_roi_rolling2.setData(
+                self.df_rolling_average.loc[filt, self.col3].to_numpy(),
+                self.df_rolling_average.loc[filt, self.col4].to_numpy(),
             )
 
             self.rolling_mean = self.df_rolling_average.loc[filt, self.col1].mean()
@@ -643,10 +859,20 @@ class MainWindow(QMainWindow):
             self.rolling_min = self.df_rolling_average.loc[filt, self.col1].min()
             self.rolling_max = self.df_rolling_average.loc[filt, self.col1].max()
 
+            self.rolling_mean2 = self.df_rolling_average.loc[filt, self.col4].mean()
+            self.rolling_std_dev2 = self.df_rolling_average.loc[filt, self.col4].std()
+            self.rolling_min2 = self.df_rolling_average.loc[filt, self.col4].min()
+            self.rolling_max2 = self.df_rolling_average.loc[filt, self.col4].max()
+
             self.rolling_mean_indicator1.setValue(self.rolling_mean)
             self.rolling_error_indicator1.setValue(self.rolling_std_dev)
             self.rolling_min_indicator1.setValue(self.rolling_min)
             self.rolling_max_indicator1.setValue(self.rolling_max)
+
+            self.rolling_mean_indicator2.setValue(self.rolling_mean2)
+            self.rolling_error_indicator2.setValue(self.rolling_std_dev2)
+            self.rolling_min_indicator2.setValue(self.rolling_min2)
+            self.rolling_max_indicator2.setValue(self.rolling_max2)
 
         except:
             pass
@@ -690,7 +916,14 @@ class MainWindow(QMainWindow):
             self.create_plot_references()
 
             self.arrays = pd.read_csv(fileName)
-            self.col0, self.col1, self.col2 = self.arrays.columns
+            (
+                self.col0,
+                self.col1,
+                self.col2,
+                self.col3,
+                self.col4,
+                self.col5,
+            ) = self.arrays.columns
             filt = ~(self.arrays[self.col0].isnull())
             # Worker.index = self.arrays.loc[filt, self.col0].shape[0] - 1
 
@@ -698,6 +931,11 @@ class MainWindow(QMainWindow):
                 self.arrays.loc[filt, self.col0].to_numpy(),
                 self.arrays.loc[filt, self.col1].to_numpy(),
             )
+            self.line_ref_xy2.setData(
+                self.arrays.loc[filt, self.col3].to_numpy(),
+                self.arrays.loc[filt, self.col4].to_numpy(),
+            )
+
             self.region_xy.setRegion(
                 (
                     self.arrays.loc[filt, self.col0].min(),
@@ -731,8 +969,8 @@ class MainWindow(QMainWindow):
         super(QMainWindow, self).closeEvent(*args, **kwargs)
         if self.cb_keithley_port.currentText() != "":
             self.inst.close()
-        # if self.cb_mcu_port.currentText() != "":
-        #     self.inst_mcu.close()
+        if self.cb_mcu_port.currentText() != "":
+            self.inst_mcu.close()
         print("Good-Bye Alex!")
 
 
