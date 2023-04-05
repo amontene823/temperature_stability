@@ -27,7 +27,8 @@ from PyQt5.QtCore import (
     pyqtSlot,
 )
 
-# from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont
+
 # from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
 # from PyQt5.QtCore import QSize
 # from PyQt5 import QtGui
@@ -83,28 +84,48 @@ class MainWindow(QMainWindow):
         self.indicator_c3.setValue(self.const_c3 * 1e7)
 
     def UI(self):
+        font = QFont("Arial", 16)
         self.setWindowTitle("Keithley")
         self.setStyleSheet("background-color: white;")
         # self.setFixedSize(QSize(1100, 1100))
 
         # Create Widgets
         self.btn_start = QPushButton("Start")
+        self.btn_start.setFont(font)
         self.btn_stop = QPushButton("Stop")
+        self.btn_stop.setFont(font)
         self.btn_load_data = QPushButton("Load Data")
+        self.btn_load_data.setFont(font)
         self.btn_save_data = QPushButton("Save Data")
+        self.btn_save_data.setFont(font)
         self.btn_clear_plot = QPushButton("Clear Plot")
+        self.btn_clear_plot.setFont(font)
 
         self.label_checkbox_continuous_acquisition = QLabel("Continuous Acquisition")
+        self.label_checkbox_continuous_acquisition.setFont(font)
         self.checkbox_continuous_acquisition = QCheckBox()
+        self.checkbox_continuous_acquisition.setFont(font)
 
         self.label_mode = QLabel("Mode")
+        self.label_mode.setFont(font)
         self.cb_mode = QComboBox()
         self.cb_mode.addItems(["R 2-Wire", "R 4-Wire"])
         self.cb_mode.setCurrentIndex(-1)
+        self.cb_mode.setFont(font)
         self.label_mode.setAlignment(QtCore.Qt.AlignHCenter)
 
+        self.label_thermistor = QLabel("Thermistor")
+        self.label_thermistor.setFont(font)
+        self.cb_thermistor = QComboBox()
+        self.cb_thermistor.setFont(font)
+        self.cb_thermistor.addItems(["10k", "1k"])
+        self.cb_thermistor.setCurrentIndex(-1)
+        self.label_thermistor.setAlignment(QtCore.Qt.AlignHCenter)
+
         self.label_keithley_port = QLabel("Keithley COM Port")
+        self.label_keithley_port.setFont(font)
         self.cb_keithley_port = QComboBox()
+        self.cb_keithley_port.setFont(font)
         self.cb_keithley_port.addItems(self.ports)
         self.cb_keithley_port.setCurrentIndex(-1)
         self.label_keithley_port.setAlignment(QtCore.Qt.AlignHCenter)
@@ -116,8 +137,10 @@ class MainWindow(QMainWindow):
         # self.label_mcu_port.setAlignment(QtCore.Qt.AlignHCenter)
 
         self.label_acquisition_time = QLabel("Acquisition Time")
+        self.label_acquisition_time.setFont(font)
         self.label_acquisition_time.setAlignment(QtCore.Qt.AlignHCenter)
         self.acquisition_time = QDoubleSpinBox()
+        self.acquisition_time.setFont(font)
         self.acquisition_time.setMinimum(0)
         self.acquisition_time.setMaximum(np.inf)
         self.acquisition_time.setValue(10)
@@ -126,8 +149,10 @@ class MainWindow(QMainWindow):
         self.acquisition_time.setSuffix(" s")
 
         self.label_box_min = QLabel("ROI Lower Bound")
+        self.label_box_min.setFont(font)
         self.label_box_min.setAlignment(QtCore.Qt.AlignHCenter)
         self.box_min = QDoubleSpinBox()
+        self.box_min.setFont(font)
         self.box_min.setMinimum(0)
         self.box_min.setMaximum(np.inf)
         self.box_min.setValue(0)
@@ -136,8 +161,10 @@ class MainWindow(QMainWindow):
         self.box_min.setSuffix(" s")
 
         self.label_box_max = QLabel("ROI Upper Bound")
+        self.label_box_max.setFont(font)
         self.label_box_max.setAlignment(QtCore.Qt.AlignHCenter)
         self.box_max = QDoubleSpinBox()
+        self.box_max.setFont(font)
         self.box_max.setMinimum(0)
         self.box_max.setMaximum(np.inf)
         self.box_max.setValue(0)
@@ -145,8 +172,10 @@ class MainWindow(QMainWindow):
         self.box_max.setDecimals(4)
 
         self.label_c1 = QLabel("C1")
+        self.label_c1.setFont(font)
         self.label_c1.setAlignment(QtCore.Qt.AlignHCenter)
         self.indicator_c1 = QDoubleSpinBox()
+        self.indicator_c1.setFont(font)
         self.indicator_c1.setMinimum(-np.inf)
         self.indicator_c1.setMaximum(np.inf)
         self.indicator_c1.setValue(0)
@@ -155,8 +184,10 @@ class MainWindow(QMainWindow):
         self.indicator_c1.setSuffix(" e-3")
 
         self.label_c2 = QLabel("C2")
+        self.label_c2.setFont(font)
         self.label_c2.setAlignment(QtCore.Qt.AlignHCenter)
         self.indicator_c2 = QDoubleSpinBox()
+        self.indicator_c2.setFont(font)
         self.indicator_c2.setMinimum(-np.inf)
         self.indicator_c2.setMaximum(np.inf)
         self.indicator_c2.setValue(0)
@@ -165,8 +196,10 @@ class MainWindow(QMainWindow):
         self.indicator_c2.setSuffix(" e-4")
 
         self.label_c3 = QLabel("C3")
+        self.label_c3.setFont(font)
         self.label_c3.setAlignment(QtCore.Qt.AlignHCenter)
         self.indicator_c3 = QDoubleSpinBox()
+        self.indicator_c3.setFont(font)
         self.indicator_c3.setMinimum(-np.inf)
         self.indicator_c3.setMaximum(np.inf)
         self.indicator_c3.setValue(0)
@@ -175,7 +208,9 @@ class MainWindow(QMainWindow):
         self.indicator_c3.setSuffix(" e-7")
 
         self.label_rolling_average_indicator = QLabel("Rolling Average Window")
+        self.label_rolling_average_indicator.setFont(font)
         self.rolling_average_indicator = QSpinBox()
+        self.rolling_average_indicator.setFont(font)
         self.rolling_average_indicator.setRange(1, int(1e9))
         self.rolling_average_indicator.setValue(1)
         self.rolling_average_indicator.setSingleStep(5)
@@ -183,7 +218,9 @@ class MainWindow(QMainWindow):
         self.rolling_average_indicator.setAlignment(QtCore.Qt.AlignHCenter)
 
         self.label_mean_indicator1 = QLabel("Mean")
+        self.label_mean_indicator1.setFont(font)
         self.mean_indicator1 = QDoubleSpinBox()
+        self.mean_indicator1.setFont(font)
         self.mean_indicator1.setReadOnly(True)
         self.mean_indicator1.setButtonSymbols(2)
         self.mean_indicator1.setSuffix(" C")
@@ -193,7 +230,9 @@ class MainWindow(QMainWindow):
         self.mean_indicator1.setAlignment(QtCore.Qt.AlignHCenter)
 
         self.label_error_indicator1 = QLabel("Std. Dev.")
+        self.label_error_indicator1.setFont(font)
         self.error_indicator1 = QDoubleSpinBox()
+        self.error_indicator1.setFont(font)
         self.error_indicator1.setReadOnly(True)
         self.error_indicator1.setButtonSymbols(2)
         self.error_indicator1.setSuffix(" C")
@@ -203,7 +242,9 @@ class MainWindow(QMainWindow):
         self.error_indicator1.setAlignment(QtCore.Qt.AlignHCenter)
 
         self.label_min_indicator1 = QLabel("Min")
+        self.label_min_indicator1.setFont(font)
         self.min_indicator1 = QDoubleSpinBox()
+        self.min_indicator1.setFont(font)
         self.min_indicator1.setReadOnly(True)
         self.min_indicator1.setButtonSymbols(2)
         self.min_indicator1.setSuffix(" C")
@@ -213,7 +254,9 @@ class MainWindow(QMainWindow):
         self.min_indicator1.setAlignment(QtCore.Qt.AlignHCenter)
 
         self.label_max_indicator1 = QLabel("Max")
+        self.label_max_indicator1.setFont(font)
         self.max_indicator1 = QDoubleSpinBox()
+        self.max_indicator1.setFont(font)
         self.max_indicator1.setReadOnly(True)
         self.max_indicator1.setButtonSymbols(2)
         self.max_indicator1.setSuffix(" C")
@@ -223,7 +266,9 @@ class MainWindow(QMainWindow):
         self.max_indicator1.setAlignment(QtCore.Qt.AlignHCenter)
 
         self.label_rolling_mean_indicator1 = QLabel("Rolling Mean")
+        self.label_rolling_mean_indicator1.setFont(font)
         self.rolling_mean_indicator1 = QDoubleSpinBox()
+        self.rolling_mean_indicator1.setFont(font)
         self.rolling_mean_indicator1.setReadOnly(True)
         self.rolling_mean_indicator1.setButtonSymbols(2)
         self.rolling_mean_indicator1.setSuffix(" C")
@@ -233,7 +278,9 @@ class MainWindow(QMainWindow):
         self.rolling_mean_indicator1.setAlignment(QtCore.Qt.AlignHCenter)
 
         self.label_rolling_error_indicator1 = QLabel("Rolling Std. Dev.")
+        self.label_rolling_error_indicator1.setFont(font)
         self.rolling_error_indicator1 = QDoubleSpinBox()
+        self.rolling_error_indicator1.setFont(font)
         self.rolling_error_indicator1.setReadOnly(True)
         self.rolling_error_indicator1.setButtonSymbols(2)
         self.rolling_error_indicator1.setSuffix(" C")
@@ -243,7 +290,9 @@ class MainWindow(QMainWindow):
         self.rolling_error_indicator1.setAlignment(QtCore.Qt.AlignHCenter)
 
         self.label_rolling_min_indicator1 = QLabel("Rolling Min")
+        self.label_rolling_min_indicator1.setFont(font)
         self.rolling_min_indicator1 = QDoubleSpinBox()
+        self.rolling_min_indicator1.setFont(font)
         self.rolling_min_indicator1.setReadOnly(True)
         self.rolling_min_indicator1.setButtonSymbols(2)
         self.rolling_min_indicator1.setSuffix(" C")
@@ -253,7 +302,9 @@ class MainWindow(QMainWindow):
         self.rolling_min_indicator1.setAlignment(QtCore.Qt.AlignHCenter)
 
         self.label_rolling_max_indicator1 = QLabel("Rolling Max")
+        self.label_rolling_max_indicator1.setFont(font)
         self.rolling_max_indicator1 = QDoubleSpinBox()
+        self.rolling_max_indicator1.setFont(font)
         self.rolling_max_indicator1.setReadOnly(True)
         self.rolling_max_indicator1.setButtonSymbols(2)
         self.rolling_max_indicator1.setSuffix(" C")
@@ -346,6 +397,8 @@ class MainWindow(QMainWindow):
         self.experiment_layout2.addWidget(self.cb_keithley_port)
         self.experiment_layout1.addWidget(self.label_mode)
         self.experiment_layout2.addWidget(self.cb_mode)
+        self.experiment_layout1.addWidget(self.label_thermistor)
+        self.experiment_layout2.addWidget(self.cb_thermistor)
         self.experiment_layout1.addWidget(self.label_c1)
         self.experiment_layout2.addWidget(self.indicator_c1)
         self.experiment_layout1.addWidget(self.label_c2)
@@ -401,6 +454,7 @@ class MainWindow(QMainWindow):
         self.box_min.valueChanged.connect(self.update_box)
         self.box_max.valueChanged.connect(self.update_box)
         self.cb_mode.currentIndexChanged.connect(self.update_mode)
+        self.cb_thermistor.currentIndexChanged.connect(self.update_thermistor)
         self.checkbox_continuous_acquisition.stateChanged.connect(
             self.continuous_acquisition_directory
         )
@@ -408,6 +462,16 @@ class MainWindow(QMainWindow):
         # self.indicator_c2.valueChanged.connect(self.update_c_constants)
         # self.indicator_c3.valueChanged.connect(self.update_c_constants)
         self.rolling_average_indicator.valueChanged.connect(self.update_rolling_average)
+
+    def update_thermistor(self):
+        if self.cb_thermistor.currentText() == "10k":
+            self.indicator_c1.setValue(1.196051641)
+            self.indicator_c2.setValue(2.228227940)
+            self.indicator_c3.setValue(1.352729757)
+        if self.cb_thermistor.currentText() == "1k":
+            self.indicator_c1.setValue(0.11284657)
+            self.indicator_c2.setValue(2.23670492)
+            self.indicator_c3.setValue(0.5728912)
 
     def update_rolling_average(self):
         try:
@@ -471,14 +535,24 @@ class MainWindow(QMainWindow):
         #         + (self.const_c3 * (np.log(R * 1000) ** 3))
         #     )
         # ) - 273.15
-        T1 = (
-            1
-            / (
-                (self.indicator_c1.value() / 1e3)
-                + (self.indicator_c2.value() / 1e4 * np.log(R * 1000))
-                + (self.indicator_c3.value() / 1e7 * (np.log(R * 1000) ** 3))
-            )
-        ) - 273.15
+        if self.cb_thermistor.currentText() == "10k":
+            T1 = (
+                1
+                / (
+                    (self.indicator_c1.value() / 1e3)
+                    + (self.indicator_c2.value() / 1e4 * np.log(R * 1000))
+                    + (self.indicator_c3.value() / 1e7 * (np.log(R * 1000) ** 3))
+                )
+            ) - 273.15
+        elif self.cb_thermistor.currentText() == "1k":
+            T1 = (
+                1
+                / (
+                    (self.indicator_c1.value() / 1e3)
+                    + (self.indicator_c2.value() / 1e4 * np.log(R * 1e6))
+                    + (self.indicator_c3.value() / 1e7 * (np.log(R * 1e6) ** 3))
+                )
+            ) - 273.15
         return T1
 
     def manage_arrays(self, mode, *args):
