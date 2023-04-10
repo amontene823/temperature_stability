@@ -422,32 +422,38 @@ class MainWindow(QMainWindow):
         self.cb_keithley_port.currentIndexChanged.connect(self.init_controller)
         # self.cb_mcu_port.currentIndexChanged.connect(self.init_mcu)
         self.region_xy.sigRegionChanged.connect(self.update_UI)
-        self.region_xy.sigRegionChangeFinished.connect(self.update_indicator_bounds)
-        self.box_min.valueChanged.connect(self.update_box)
-        self.box_max.valueChanged.connect(self.update_box)
+        # self.region_xy.sigRegionChangeFinished.connect(self.update_indicator_bounds)
+        # self.box_min.valueChanged.connect(self.update_box)
+        # self.box_max.valueChanged.connect(self.update_box)
         self.cb_mode.currentIndexChanged.connect(self.update_mode)
         self.cb_thermistor.currentIndexChanged.connect(self.update_thermistor)
         self.checkbox_continuous_acquisition.stateChanged.connect(
             self.continuous_acquisition_directory
         )
-        # self.indicator_c1.valueChanged.connect(self.update_c_constants)
-        # self.indicator_c2.valueChanged.connect(self.update_c_constants)
-        # self.indicator_c3.valueChanged.connect(self.update_c_constants)
         self.rolling_average_indicator.valueChanged.connect(self.update_rolling_average)
 
     def update_thermistor(self):
         if self.cb_thermistor.currentText() == "100k":
-            self.indicator_c1.setValue(-0.45037853)
-            self.indicator_c2.setValue(1.89222818)
-            self.indicator_c3.setValue(0.51042921)
+            # self.indicator_c1.setValue(-0.45037853)
+            # self.indicator_c2.setValue(1.89222818)
+            # self.indicator_c3.setValue(0.51042921)
+            self.indicator_c1.setValue(0.84826723)
+            self.indicator_c2.setValue(2.05756324)
+            self.indicator_c3.setValue(0.89090701)
         if self.cb_thermistor.currentText() == "10k":
+            # self.indicator_c1.setValue(1.196051641)
+            # self.indicator_c2.setValue(2.228227940)
+            # self.indicator_c3.setValue(1.352729757)
             self.indicator_c1.setValue(1.196051641)
             self.indicator_c2.setValue(2.228227940)
             self.indicator_c3.setValue(1.352729757)
         if self.cb_thermistor.currentText() == "1k":
-            self.indicator_c1.setValue(0.11284657)
-            self.indicator_c2.setValue(2.23670492)
-            self.indicator_c3.setValue(0.5728912)
+            # self.indicator_c1.setValue(0.11284657)
+            # self.indicator_c2.setValue(2.23670492)
+            # self.indicator_c3.setValue(0.5728912)
+            self.indicator_c1.setValue(1.66333549)
+            self.indicator_c2.setValue(2.38867938)
+            self.indicator_c3.setValue(1.23057891)
 
     def update_rolling_average(self):
         try:
@@ -503,33 +509,7 @@ class MainWindow(QMainWindow):
         return read
 
     def calculate_temp(self, R):
-        if self.cb_thermistor.currentText() == "100k":
-            T1 = (
-                1
-                / (
-                    (self.indicator_c1.value() / 1e3)
-                    + (self.indicator_c2.value() / 1e4 * np.log(R * 1e6))
-                    + (self.indicator_c3.value() / 1e7 * (np.log(R * 1e6) ** 3))
-                )
-            ) - 273.15
-        elif self.cb_thermistor.currentText() == "10k":
-            T1 = (
-                1
-                / (
-                    (self.indicator_c1.value() / 1e3)
-                    + (self.indicator_c2.value() / 1e4 * np.log(R * 1000))
-                    + (self.indicator_c3.value() / 1e7 * (np.log(R * 1000) ** 3))
-                )
-            ) - 273.15
-        elif self.cb_thermistor.currentText() == "1k":
-            T1 = (
-                1
-                / (
-                    (self.indicator_c1.value() / 1e3)
-                    + (self.indicator_c2.value() / 1e4 * np.log(R * 1e6))
-                    + (self.indicator_c3.value() / 1e7 * (np.log(R * 1e6) ** 3))
-                )
-            ) - 273.15
+        T1 = (1 / (self.indicator_c1.value() / 1e3 + (self.indicator_c2.value() / 1e4 * np.log(R)) + (self.indicator_c3.value() / 1e7 * (np.log(R) ** 3)))) - 273.15
         return T1
 
     def manage_arrays(self, mode, *args):
@@ -566,11 +546,12 @@ class MainWindow(QMainWindow):
         except:
             pass
         Worker.index = -1
-        self.mode = ["Time (s)", "Temp (C)", "Epoch Time"]
+        self.mode = ["Time (s)", "Temp (C)", "Resistance", "Epoch Time"]
         self.arrays = self.manage_arrays(self.mode)
         self.col0 = self.arrays.columns[0]
         self.col1 = self.arrays.columns[1]
         self.col2 = self.arrays.columns[2]
+        self.col3 = self.arrays.columns[3]
         self.clear_plots()
         self.create_plot_references()
         self.region_xy.setRegion((0, 1))
@@ -588,11 +569,13 @@ class MainWindow(QMainWindow):
         self.threadpool.tryStart(worker)
 
     def start2(self, fn_name, result):
-        Resistance = float(result.decode()) / 1000
+        # Resistance = float(result.decode()) / 1000
+        Resistance = float(result.decode()) 
         Temp = self.calculate_temp(Resistance)
         self.arrays.loc[Worker.index, self.col0] = self.time_elapsed(self.initial_time)
         self.arrays.loc[Worker.index, self.col1] = Temp
-        self.arrays.loc[Worker.index, self.col2] = perf_counter_ns()
+        self.arrays.loc[Worker.index, self.col2] = Resistance
+        self.arrays.loc[Worker.index, self.col3] = perf_counter_ns()
 
         # Condition so that len(array) > 2; avoid slicing errors
         if (Worker.index > 0) and (Worker.index % 10 == 0):
@@ -615,7 +598,8 @@ class MainWindow(QMainWindow):
                     + "/"
                     + str(perf_counter_ns())
                     + "_"
-                    + "temperature.csv"
+                    + "temperature.csv", 
+                    index = False
                 )
                 self.start0()
             else:
@@ -663,6 +647,8 @@ class MainWindow(QMainWindow):
     def update_UI(self):
         # Get lower and upper bound of region
         self.lb, self.ub = self.region_xy.getRegion()
+        self.box_min.setValue(self.lb)
+        self.box_max.setValue(self.ub)
         self.dx = self.ub - self.lb
         filt = (self.arrays.loc[:, self.col0] >= self.lb) & (
             self.arrays.loc[:, self.col0] <= self.ub
@@ -707,9 +693,9 @@ class MainWindow(QMainWindow):
         except:
             pass
 
-    def update_box(self):
-        self.region_xy.setRegion((self.box_min.value(), self.box_max.value()))
-        self.plot_xy_roi.setRange(xRange=(self.box_min.value(), self.box_max.value()))
+    # def update_box(self):
+    #     self.region_xy.setRegion((self.box_min.value(), self.box_max.value()))
+    #     self.plot_xy_roi.setRange(xRange=(self.box_min.value(), self.box_max.value()))
 
     def clear_plots(self):
         self.plot_xy.clear()
@@ -746,7 +732,7 @@ class MainWindow(QMainWindow):
             self.create_plot_references()
 
             self.arrays = pd.read_csv(fileName)
-            self.col0, self.col1, self.col2 = self.arrays.columns
+            self.col0, self.col1, self.col2, self.col3 = self.arrays.columns
             filt = ~(self.arrays[self.col0].isnull())
             # Worker.index = self.arrays.loc[filt, self.col0].shape[0] - 1
 
@@ -768,7 +754,7 @@ class MainWindow(QMainWindow):
             )
             self.rolling_average(self.arrays.loc[filt])
             self.plot(self.arrays.loc[filt])
-            self.update_UI(self.arrays.loc[filt])
+            self.update_UI()
             # Rolling Average
             # This filtered data avoids edge effects in the rolling average
             # self.arrays.loc[:, self.col2] = (
