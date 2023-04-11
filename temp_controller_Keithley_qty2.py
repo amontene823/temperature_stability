@@ -150,6 +150,18 @@ class MainWindow(QMainWindow):
         self.acquisition_time.setDecimals(0)
         self.acquisition_time.setSuffix(" s")
 
+        self.label_indicator_calibration_offset = QLabel("Calibration Temperature Offset")
+        self.label_indicator_calibration_offset.setFont(font)
+        self.label_indicator_calibration_offset.setAlignment(Qt.AlignHCenter)
+        self.indicator_calibration_offset= QDoubleSpinBox()
+        self.indicator_calibration_offset.setFont(font)
+        self.indicator_calibration_offset.setMinimum(-np.inf)
+        self.indicator_calibration_offset.setMaximum(np.inf)
+        self.indicator_calibration_offset.setValue(0)
+        self.indicator_calibration_offset.setSingleStep(1)
+        self.indicator_calibration_offset.setDecimals(7)
+        self.indicator_calibration_offset.setSuffix(" °C")
+
         self.label_box_min = QLabel("ROI Lower Bound")
         self.label_box_min.setFont(font)
         self.label_box_min.setAlignment(Qt.AlignHCenter)
@@ -660,6 +672,8 @@ class MainWindow(QMainWindow):
         self.experiment_layout9.addWidget(self.error_indicator1)
         self.experiment_layout9.addWidget(self.min_indicator1)
         self.experiment_layout9.addWidget(self.max_indicator1)
+        self.experiment_layout10.addWidget(self.label_indicator_calibration_offset)
+        self.experiment_layout11.addWidget(self.indicator_calibration_offset)
         self.experiment_layout10.addWidget(self.label_rolling_average_indicator)
         self.experiment_layout11.addWidget(self.rolling_average_indicator)
         self.experiment_layout10.addWidget(self.label_box_min)
@@ -724,6 +738,7 @@ class MainWindow(QMainWindow):
         # self.show()
 
         # UI Event Triggers
+        self.btn_calibrate.clicked.connect(self.start0)
         self.btn_start.clicked.connect(self.start0)
         self.btn_stop.clicked.connect(self.stop)
         self.btn_save_data.clicked.connect(self.saveFileDialog)
@@ -867,10 +882,12 @@ class MainWindow(QMainWindow):
         return df
 
     def start0(self):
-        """Initialize Scatter program"""
+        """Initialize program"""
         self.stop_button_pressed = False
         try:
             self.button_pressed = self.sender().text()
+            if self.button_pressed == 'Calibrate':
+                self.indicator_calibration_offset.setValue(0)
         except:
             pass
         Worker.index = -1
@@ -906,7 +923,6 @@ class MainWindow(QMainWindow):
         worker = Worker(self.query_keithley)
         worker.signals.result.connect(self.start2)
         self.threadpool.tryStart(worker)
-        print("start1")
 
     def start2(self, fn_name, result):
         Resistance = float(result.decode())
@@ -916,22 +932,19 @@ class MainWindow(QMainWindow):
         self.arrays.loc[Worker.index, self.col2] = Temp
         self.arrays.loc[Worker.index, self.col3] = Resistance
         self.start3()
-        print("start2")
 
     def start3(self):
         worker = Worker(self.query_keithley2)
         worker.signals.result.connect(self.start4)
         self.threadpool.tryStart(worker)
-        print("start3")
 
     def start4(self, fn_name, result):
-        print("start4 start")
         Resistance = float(result.decode())
         Temp = self.calculate_temp(Resistance)
         self.arrays.loc[Worker.index, self.col4] = Temp
         self.arrays.loc[Worker.index, self.col5] = Resistance
         self.arrays.loc[Worker.index, self.col1] = (
-            self.arrays.loc[Worker.index, self.col2] - Temp
+            self.arrays.loc[Worker.index, self.col2] - Temp - self.indicator_calibration_offset.value()
         )
         # Condition so that len(array) > 2; avoid slicing errors
         if (Worker.index > 0) and (Worker.index % 10 == 0):
@@ -960,7 +973,11 @@ class MainWindow(QMainWindow):
                 self.start0()
             else:
                 print("Acquisition Stopped")
-        print("start4 end")
+                if self.button_pressed == 'Calibrate':
+                    filt = ~(self.arrays[self.col0].isnull())
+                    mean_sample = self.arrays.loc[filt, self.col2].mean()
+                    mean_reference = self.arrays.loc[filt, self.col4].mean()
+                    self.indicator_calibration_offset.setValue(mean_sample - mean_reference)
 
     def rolling_average(self, df):
         filt = ~(df[self.col0].isnull()) & ~(df[self.col1].isnull())
@@ -1201,7 +1218,7 @@ class MainWindow(QMainWindow):
             self.inst2.close()
         # if self.cb_mcu_port.currentText() != "":
         #     self.inst_mcu.close()
-        print("Good-Bye Alex!")
+        print("Good-Bye!")
 
 
 class WorkerSignals(QObject):
