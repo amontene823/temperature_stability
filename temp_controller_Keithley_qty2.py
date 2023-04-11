@@ -3,6 +3,7 @@ import sys
 import traceback
 from datetime import date
 from time import perf_counter_ns
+from wakepy import set_keepawake, unset_keepawake
 
 # import matplotlib.pyplot as plt
 import numpy as np
@@ -57,6 +58,7 @@ from serial.tools import list_ports
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        set_keepawake(keep_screen_awake=True)
         self.ports = [p.name for p in list_ports.comports()]
         self.UI()
         # self.qtimer()
@@ -1216,6 +1218,7 @@ class MainWindow(QMainWindow):
             self.inst.close()
         if self.cb_keithley_port2.currentText() != "":
             self.inst2.close()
+        unset_keepawake()
         # if self.cb_mcu_port.currentText() != "":
         #     self.inst_mcu.close()
         print("Good-Bye!")
