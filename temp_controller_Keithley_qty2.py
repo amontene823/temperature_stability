@@ -45,7 +45,7 @@ from PyQt5.QtWidgets import (  # QDialog,; QLineEdit,; QMessageBox,; QSlider,
     QWidget,
 )
 
-# from scipy.optimize import curve_fit
+from scipy.optimize import curve_fit
 from serial.tools import list_ports
 
 # https://matplotlib.org/3.5.0/gallery/user_interfaces/embedding_in_qt_sgskip.html
@@ -58,6 +58,7 @@ from serial.tools import list_ports
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.font = QFont("Arial", 14)
         set_keepawake(keep_screen_awake=True)
         self.ports = [p.name for p in list_ports.comports()]
         self.UI()
@@ -76,6 +77,48 @@ class MainWindow(QMainWindow):
         self.indicator_c1.setValue(self.const_c1 * 1e3)
         self.indicator_c2.setValue(self.const_c2 * 1e4)
         self.indicator_c3.setValue(self.const_c3 * 1e7)
+
+    def create_indicator(
+        self,
+        label: str,
+        decimals: int,
+        suffix: str,
+    ):
+        label = QLabel(label)
+        label.setFont(self.font)
+        label.setAlignment(Qt.AlignHCenter)
+        double_spin_box = QDoubleSpinBox()
+        double_spin_box.setAlignment(Qt.AlignHCenter)
+        double_spin_box.setFont(self.font)
+        double_spin_box.setReadOnly(True)
+        double_spin_box.setButtonSymbols(2)
+        double_spin_box.setRange(-np.inf, np.inf)
+        double_spin_box.setDecimals(decimals)
+        double_spin_box.setSuffix(suffix)
+        return label, double_spin_box
+
+    def create_double_spin_box(
+        self,
+        label: str,
+        default_value: float,
+        step: float,
+        minimum: float,
+        maximum: float,
+        decimals: int,
+        suffix: str,
+    ):
+        label = QLabel(label)
+        label.setFont(self.font)
+        label.setAlignment(Qt.AlignHCenter)
+        double_spin_box = QDoubleSpinBox()
+        double_spin_box.setAlignment(Qt.AlignHCenter)
+        double_spin_box.setFont(self.font)
+        double_spin_box.setValue(default_value)
+        double_spin_box.setSingleStep(step)
+        double_spin_box.setRange(minimum, maximum)
+        double_spin_box.setDecimals(decimals)
+        double_spin_box.setSuffix(suffix)
+        return label, double_spin_box
 
     def UI(self):
         font = QFont("Arial", 16)
@@ -163,6 +206,9 @@ class MainWindow(QMainWindow):
         self.indicator_calibration_offset.setSingleStep(1)
         self.indicator_calibration_offset.setDecimals(7)
         self.indicator_calibration_offset.setSuffix(" °C")
+
+        self.label_indicator_fit_result, self.indicator_fit_result = self.create_indicator("Slope", 6, " uK/s")
+        self.label_indicator_fit_threshold, self.indicator_fit_threshold= self.create_double_spin_box("Slope Threshold", 0, 0.1, 0, np.inf, 6, " uK/s")
 
         self.label_box_min = QLabel("ROI Lower Bound")
         self.label_box_min.setFont(font)
@@ -676,6 +722,10 @@ class MainWindow(QMainWindow):
         self.experiment_layout9.addWidget(self.max_indicator1)
         self.experiment_layout10.addWidget(self.label_indicator_calibration_offset)
         self.experiment_layout11.addWidget(self.indicator_calibration_offset)
+        self.experiment_layout10.addWidget(self.label_indicator_fit_threshold)
+        self.experiment_layout11.addWidget(self.indicator_fit_threshold)
+        self.experiment_layout10.addWidget(self.label_indicator_fit_result)
+        self.experiment_layout11.addWidget(self.indicator_fit_result)
         self.experiment_layout10.addWidget(self.label_rolling_average_indicator)
         self.experiment_layout11.addWidget(self.rolling_average_indicator)
         self.experiment_layout10.addWidget(self.label_box_min)
@@ -740,8 +790,8 @@ class MainWindow(QMainWindow):
         # self.show()
 
         # UI Event Triggers
-        self.btn_calibrate.clicked.connect(self.start0)
-        self.btn_start.clicked.connect(self.start0)
+        # self.btn_calibrate.clicked.connect(self.start0)
+        self.btn_start.clicked.connect(self.start)
         self.btn_stop.clicked.connect(self.stop)
         self.btn_save_data.clicked.connect(self.saveFileDialog)
         self.btn_load_data.clicked.connect(self.openFileNameDialog)
@@ -882,14 +932,13 @@ class MainWindow(QMainWindow):
             # Fill doubled array with previously acquired data
             df[: df_tmp.shape[0]] = df_tmp
         return df
+    
 
-    def start0(self):
+    def start(self):
         """Initialize program"""
         self.stop_button_pressed = False
         try:
             self.button_pressed = self.sender().text()
-            if self.button_pressed == 'Calibrate':
-                self.indicator_calibration_offset.setValue(0)
         except:
             pass
         Worker.index = -1
@@ -915,71 +964,79 @@ class MainWindow(QMainWindow):
         self.region_xy.setRegion((0, 1))
         self.initial_time = self.epoch_time_s()
 
-        self.start1()
+        def linear(x, m, b):
+            y = m*x + b
+            return y
 
-    def start1(self):
-        """Threaded data collection"""
-        Worker.index += 1
-        self.arrays = self.manage_arrays(self.mode, self.arrays)
+        def start0():
+            """Threaded data collection"""
+            Worker.index += 1
+            self.arrays = self.manage_arrays(self.mode, self.arrays)
 
-        worker = Worker(self.query_keithley)
-        worker.signals.result.connect(self.start2)
-        self.threadpool.tryStart(worker)
+            self.easy_threading(self.query_keithley, start1)
 
-    def start2(self, fn_name, result):
-        Resistance = float(result.decode())
-        Temp = self.calculate_temp(Resistance)
-        self.arrays.loc[Worker.index, self.col0] = self.time_elapsed(self.initial_time)
-        self.arrays.loc[Worker.index, self.col6] = perf_counter_ns()
-        self.arrays.loc[Worker.index, self.col2] = Temp
-        self.arrays.loc[Worker.index, self.col3] = Resistance
-        self.start3()
+        def start1(fn_name, result):
+            Resistance = float(result.decode())
+            Temp = self.calculate_temp(Resistance)
+            self.arrays.loc[Worker.index, self.col0] = self.time_elapsed(self.initial_time)
+            self.arrays.loc[Worker.index, self.col6] = perf_counter_ns()
+            self.arrays.loc[Worker.index, self.col2] = Temp
+            self.arrays.loc[Worker.index, self.col3] = Resistance
 
-    def start3(self):
-        worker = Worker(self.query_keithley2)
-        worker.signals.result.connect(self.start4)
-        self.threadpool.tryStart(worker)
+            self.easy_threading(self.query_keithley2, start2)
 
-    def start4(self, fn_name, result):
-        Resistance = float(result.decode())
-        Temp = self.calculate_temp(Resistance)
-        self.arrays.loc[Worker.index, self.col4] = Temp
-        self.arrays.loc[Worker.index, self.col5] = Resistance
-        self.arrays.loc[Worker.index, self.col1] = (
-            self.arrays.loc[Worker.index, self.col2] - Temp - self.indicator_calibration_offset.value()
-        )
-        # Condition so that len(array) > 2; avoid slicing errors
-        if (Worker.index > 0) and (Worker.index % 10 == 0):
-            self.rolling_average(self.arrays)
-            self.plot(self.arrays)
-            self.update_UI()
-        # Loop/Stop condition
-        if (
-            self.arrays.loc[Worker.index, self.col0] <= self.acquisition_time.value()
-            and self.stop_button_pressed == False
-        ):
-            self.start1()
-        # Continually acquire data and save to csv if checkbox is checked
-        else:
-            if self.stop_button_pressed == True:
-                self.checkbox_continuous_acquisition.setChecked(False)
-            elif self.checkbox_continuous_acquisition.isChecked() == True:
-                self.arrays.to_csv(
-                    self.directory
-                    + "/"
-                    + str(perf_counter_ns())
-                    + "_"
-                    + "temperature.csv",
-                    index=False,
-                )
-                self.start0()
+        def start2(fn_name, result):
+            Resistance = float(result.decode())
+            Temp = self.calculate_temp(Resistance)
+            self.arrays.loc[Worker.index, self.col4] = Temp
+            self.arrays.loc[Worker.index, self.col5] = Resistance
+            self.arrays.loc[Worker.index, self.col1] = (
+                self.arrays.loc[Worker.index, self.col2] - Temp - self.indicator_calibration_offset.value()
+            )
+
+            # Linear fit of 2 min segments
+            if (self.arrays.loc[Worker.index, self.col0] >= 180) and (Worker.index % 10 == 0):
+                ub_time = self.arrays.loc[Worker.index, self.col0]
+                lb_time = self.arrays.loc[Worker.index, self.col0].sub(120) 
+                filt = ~(self.arrays['Time_(s)'].isnull()) & (self.arrays['Time_(s)'] > lb_time) & (self.arrays['Time_(s)'] < ub_time)
+                popt, pcov = curve_fit(linear, self.arrays.loc[filt, 'Time_(s)'], self.arrays.loc[filt, 'Temp_Change_(C)'])
+                self.indicator_fit_result.setValue(np.abs(popt)) 
+                
+
+            # Plot/Update UI
+            if (Worker.index > 0) and (Worker.index % 10 == 0):
+                self.rolling_average(self.arrays)
+                self.plot(self.arrays)
+                self.update_UI()
+            # Loop/Stop condition
+            if (
+                self.arrays.loc[Worker.index, self.col0] <= self.acquisition_time.value()
+                and self.stop_button_pressed == False
+            ):
+                self.start2()
+            # Continually acquire data and save to csv if checkbox is checked
             else:
-                print("Acquisition Stopped")
-                if self.button_pressed == 'Calibrate':
-                    filt = ~(self.arrays[self.col0].isnull())
-                    mean_sample = self.arrays.loc[filt, self.col2].mean()
-                    mean_reference = self.arrays.loc[filt, self.col4].mean()
-                    self.indicator_calibration_offset.setValue(mean_sample - mean_reference)
+                if self.stop_button_pressed == True:
+                    self.checkbox_continuous_acquisition.setChecked(False)
+                elif self.checkbox_continuous_acquisition.isChecked() == True:
+                    self.arrays.to_csv(
+                        self.directory
+                        + "/"
+                        + str(perf_counter_ns())
+                        + "_"
+                        + "temperature.csv",
+                        index=False,
+                    )
+                    self.start()
+                else:
+                    print("Acquisition Stopped")
+                    if self.button_pressed == 'Calibrate':
+                        filt = ~(self.arrays[self.col0].isnull())
+                        mean_sample = self.arrays.loc[filt, self.col2].mean()
+                        mean_reference = self.arrays.loc[filt, self.col4].mean()
+                        self.indicator_calibration_offset.setValue(mean_sample - mean_reference)
+        # Starts the chain when the outer method is called
+        start0()
 
     def rolling_average(self, df):
         filt = ~(df[self.col0].isnull()) & ~(df[self.col1].isnull())
@@ -1210,6 +1267,11 @@ class MainWindow(QMainWindow):
             #     self.arrays.loc[filt, self.col0].to_numpy(),
             #     self.arrays.loc[filt, self.col2].to_numpy()
             # )
+
+    def easy_threading(self, signaling_fn, slotted_fn, *args, **kwargs):
+        worker = Worker(signaling_fn, *args, **kwargs)
+        worker.signals.result.connect(slotted_fn)
+        self.threadpool.tryStart(worker)
 
     # Executes when window is closed
     def closeEvent(self, *args, **kwargs):
